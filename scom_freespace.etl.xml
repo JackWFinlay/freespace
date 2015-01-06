@@ -4,10 +4,10 @@
     <include href="scom_freespace_in_db.properties" />
     <include href="scom_freespace_out_db.properties" />
   </properties>
-
+  
   <connection id="in" driver="${scom_freespace_in_db.driver}" url="${scom_freespace_in_db.url}" user="${scom_freespace_in_db.user}" password="${scom_freespace_in_db.password}" />
   <connection id="out" driver="${scom_freespace_out_db.driver}" url="${scom_freespace_out_db.url}" user="${scom_freespace_out_db.user}" password="${scom_freespace_out_db.password}" />
-
+  
   <query connection-id="in">
 
     SELECT bme.Path, ps.PerfmonInstanceName, pdav.SampleValue,pdav.TimeSampled
@@ -17,17 +17,17 @@
     INNER JOIN BaseManagedEntity (NOLOCK) bme ON ps.BaseManagedEntityID =bme.BaseManagedEntityID
     WHERE (r.RuleName ='Microsoft.Windows.Server.2003.LogicalDisk.FreeSpace.Collection' OR r.RuleName ='Microsoft.Windows.Server.2008.LogicalDisk.FreeSpace.Collection' OR r.RuleName ='Microsoft.Windows.Server.6.2.LogicalDisk.FreeSpace.Collection')
     AND pdav.TimeSampled = (SELECT MAX(TimeSampled) FROM PerformanceDataAllView WHERE PerformanceSourceInternalId =pdav.PerformanceSourceInternalId )
-
+    
     <script connection-id="out">
 
-      INSERT INTO freespace_percent(Server_name, Drive_letter , Free_space_Percentage ,Time)
+      INSERT INTO FreeSpace_Percent(Server_name, Drive_letter , Free_space_Percentage ,Time)
       VALUES (?Path, ?PerfmonInstanceName, ?SampleValue, ?TimeSampled);
 
     </script>
   </query>
-
+  
   <query connection-id="in">
-
+    
     SELECT bme.Path, ps.PerfmonInstanceName, pdav.SampleValue,pdav.TimeSampled
     FROM PerformanceDataAllView (NOLOCK) AS pdav
     INNER JOIN PerformanceSource (NOLOCK) ps ON pdav.PerformanceSourceInternalId = ps.PerformanceSourceInternalId
@@ -38,7 +38,7 @@
 
     <script connection-id="out">
 
-      INSERT INTO freespace_mb(Server_name, Drive_letter , MB_free ,Time)
+      INSERT INTO FreeSpace_MB(Server_name, Drive_letter , MB_free ,Time)
       VALUES (?Path, ?PerfmonInstanceName, ?SampleValue, ?TimeSampled);
 
     </script>
